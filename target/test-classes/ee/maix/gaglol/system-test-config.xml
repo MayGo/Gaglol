@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+              http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+              http://www.springframework.org/schema/jdbc
+              http://www.springframework.org/schema/jdbc/spring-jdbc-3.0.xsd">
+
+	<!-- Configuration to support system testing the rewards application. -->
+
+	<!-- Imports application configuration -->
+	<import resource="application-config.xml"/>
+	
+	<!-- Creates an in-memory "rewards" database populated with test data for fast testing -->
+	<jdbc:embedded-database id="dataSource" >
+<!-- 		<jdbc:script location="classpath:rewards/testdb/schema.sql"/>
+		<jdbc:script location="classpath:rewards/testdb/test-data.sql"/> -->
+	</jdbc:embedded-database>
+
+	<!-- A Hibernate SessionFactory for mapping Accounts and Restaurants from object to relation tabl2es -->
+	<bean id="sessionFactory" class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean" >
+		<property name="dataSource" ref="dataSource"/>
+				<property name="packagesToScan" value="ee.maix.gaglol.domain" />
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.archive.autodetection">class</prop>
+				<prop key="hibernate.dialect">org.hibernate.dialect.HSQLDialect</prop>
+				<prop key="hibernate.show_sql">true</prop>
+				<prop key="hibernate.connection.driver_class">org.hsqldb.jdbcDriver</prop>
+				<prop key="hibernate.connection.username">sa</prop>
+				<prop key="hibernate.connection.password"></prop>
+				<prop key="hibernate.connection.url">jdbc:hsqldb:mem:pics</prop>
+				<prop key="hibernate.hbm2ddl.auto" >create</prop>
+			</props>
+		</property>
+	</bean>
+
+	<!-- A transaction manager for working with Hibernate SessionFactories -->
+	<bean id="transactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory"/>
+	</bean>
+
+</beans>

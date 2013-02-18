@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:task="http://www.springframework.org/schema/task"
+	xsi:schemaLocation="http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-3.0.xsd
+		http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.0.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+
+
+	<import resource="db-context.xml" />
+
+
+	<!-- The configuration of the account manager application. -->
+
+	<context:component-scan base-package="ee.maix.gaglol"/>
+	<context:annotation-config/>
+
+
+	<!-- The account manager service that can load accounts from the database 
+		<bean id="accountManager" class="accounts.internal.HibernateAccountManager"> 
+		<constructor-arg ref="sessionFactory" /> </bean> -->
+
+
+	<!-- Translates Hibernate exceptions to Spring Data Access Exceptions -->
+	<bean
+		class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor" />
+
+
+
+
+	<!-- Activates @Scheduled and @Async annotations for scheduling -->
+	<task:annotation-driven executor="executorWithPoolSizeRange"
+		scheduler="taskScheduler" />
+
+	<!-- The 'executor' element: When a task is submitted, the executor will 
+		first try to use a free thread if the number of active threads is currently 
+		less than the core size. If the core size has been reached, then the task 
+		will be added to the queue as long as its capacity has not yet been reached. 
+		Only then, if the queue's capacity has been reached, will the executor create 
+		a new thread beyond the core size. If the max size has also been reached, 
+		then the executor will reject the task See: 25.4.2 The 'executor' element -->
+	<!-- Defines a ThreadPoolTaskExecutor instance with configurable pool size, 
+		queue-capacity, keep-alive, and rejection-policy values. The id becomes the 
+		default thread name prefix -->
+	<task:executor id="executorWithPoolSizeRange" pool-size="5-25"
+		queue-capacity="100" />
+
+	<!-- Defines a ThreadPoolTaskScheduler instance with configurable pool size. 
+		The id becomes the default thread name prefix. -->
+	<task:scheduler id="taskScheduler" pool-size="1" />
+
+
+
+
+
+
+
+
+	<!-- Creates a MySQL Datasource and populates test data to it <bean id="dataSource" 
+		class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close"> <property 
+		name="driverClassName" value="com.mysql.jdbc.Driver" /> <property name="url" 
+		value="jdbc:mysql://127.0.0.1:3306/test" /> <property name="username" value="spring" 
+		/> <property name="password" value="spring" /> </bean> <jdbc:initialize-database 
+		data-source="dataSource"> <jdbc:script location="classpath:accounts/testdb/mysql_schema.sql"/> 
+		<jdbc:script location="classpath:accounts/testdb/mysql_test-data.sql"/> </jdbc:initialize-database> -->
+
+</beans>
